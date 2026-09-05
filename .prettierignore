@@ -1,0 +1,10 @@
+node_modules
+.next
+src/data
+public/countries.geo.json
+artifacts
+test-results
+playwright-report
+package-lock.json
+AGENTS.md
+CLAUDE.md
