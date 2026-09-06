@@ -97,21 +97,21 @@ export default function Globe(props: GlobeProps) {
     controls.dampingFactor = 0.07;
     controls.minDistance = 1.5;
     controls.maxDistance = 5;
-    controls.autoRotateSpeed = 0.22;
+    controls.autoRotateSpeed = 0.12;
     controls.rotateSpeed = 0.5;
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const material = new THREE.MeshPhongMaterial({
-      color: '#b4c9c6',
-      shininess: 9,
-      specular: '#19393e',
+      color: '#bbc8d6',
+      shininess: 6,
+      specular: '#172c46',
     });
     const earth = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), material);
     scene.add(earth);
-    scene.add(new THREE.AmbientLight('#bdd8d4', 1.8));
-    const sun = new THREE.DirectionalLight('#d3efe4', 2.1);
+    scene.add(new THREE.AmbientLight('#b7c7dc', 1.5));
+    const sun = new THREE.DirectionalLight('#d9e3ee', 1.7);
     sun.position.set(-3, 5, 4);
     scene.add(sun);
-    const rim = new THREE.DirectionalLight('#447a94', 1.8);
+    const rim = new THREE.DirectionalLight('#49749d', 1.5);
     rim.position.set(4, 1, -3);
     scene.add(rim);
     const atmosphere = new THREE.Mesh(
@@ -120,7 +120,7 @@ export default function Globe(props: GlobeProps) {
         vertexShader:
           'varying vec3 vNormal; varying vec3 vPosition; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vNormal = normalize(normalMatrix * normal); vPosition = mv.xyz; gl_Position = projectionMatrix * mv; }',
         fragmentShader:
-          'varying vec3 vNormal; varying vec3 vPosition; void main(){ float rim = pow(1.0-abs(dot(normalize(vNormal),normalize(-vPosition))),3.5); gl_FragColor=vec4(0.28,0.65,0.61,rim*0.23); }',
+          'varying vec3 vNormal; varying vec3 vPosition; void main(){ float rim = pow(1.0-abs(dot(normalize(vNormal),normalize(-vPosition))),3.5); gl_FragColor=vec4(0.28,0.46,0.70,rim*0.18); }',
         transparent: true,
         side: THREE.BackSide,
         depthWrite: false,
@@ -151,7 +151,7 @@ export default function Globe(props: GlobeProps) {
           color: '#85928f',
           size: 0.017,
           transparent: true,
-          opacity: 0.5,
+          opacity: 0.28,
           sizeAttenuation: true,
         }),
       ),
@@ -167,7 +167,7 @@ export default function Globe(props: GlobeProps) {
     gridGeo.setAttribute('position', new THREE.Float32BufferAttribute(gridVertices, 3));
     const grid = new THREE.LineSegments(
       gridGeo,
-      new THREE.LineBasicMaterial({ color: '#789992', transparent: true, opacity: 0.1 }),
+      new THREE.LineBasicMaterial({ color: '#8197ae', transparent: true, opacity: 0.075 }),
     );
     scene.add(grid);
     const markerGroup = new THREE.Group();
@@ -214,7 +214,7 @@ export default function Globe(props: GlobeProps) {
         textureCanvas.width = 2048;
         textureCanvas.height = 1024;
         const ctx = textureCanvas.getContext('2d')!;
-        ctx.fillStyle = '#0a1c22';
+        ctx.fillStyle = '#07121f';
         ctx.fillRect(0, 0, 2048, 1024);
         const projection = geoEquirectangular()
           .scale(2048 / (2 * Math.PI))
@@ -223,14 +223,14 @@ export default function Globe(props: GlobeProps) {
         for (const feature of data.features) {
           ctx.beginPath();
           path(feature);
-          ctx.fillStyle = '#294044';
+          ctx.fillStyle = '#263a50';
           ctx.fill();
-          ctx.strokeStyle = '#55706d';
+          ctx.strokeStyle = '#546a82';
           ctx.lineWidth = 0.65;
           ctx.stroke();
         }
         // Restrained cartographic texture, generated from public-domain boundaries.
-        ctx.globalAlpha = 0.11;
+        ctx.globalAlpha = 0.055;
         ctx.fillStyle = '#b5c7b8';
         for (let y = 0; y < 1024; y += 4)
           for (let x = y % 8; x < 2048; x += 5) ctx.fillRect(x, y, 0.7, 0.7);

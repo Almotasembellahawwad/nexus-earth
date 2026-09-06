@@ -592,6 +592,7 @@ export default function Workspace() {
                 Earth, in real time
                 <span className="live-dot" />
               </h2>
+              <p className="observatory-intro">A continuous portrait of a world in motion.</p>
             </div>
             <div className="earth-heading-right">
               <span>GLOBAL COVERAGE</span>
