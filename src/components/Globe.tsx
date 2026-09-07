@@ -7,8 +7,13 @@ import { geoContains, geoEquirectangular, geoGraticule10, geoPath } from 'd3-geo
 import type { FeatureCollection, Geometry } from 'geojson';
 import { COUNTRIES } from '@/lib/countries';
 import { TYPE_META, type Country, type GlobalEvent } from '@/lib/types';
+import type { CameraView } from '@/lib/shared-view';
 
 interface GlobeProps {
+  cinematic?: boolean;
+  paused?: boolean;
+  initialCamera?: CameraView;
+  onCameraChange?: (camera: CameraView) => void;
   events: GlobalEvent[];
   selected: GlobalEvent | null;
   focus: { latitude: number; longitude: number } | null;
@@ -91,8 +96,10 @@ export default function Globe(props: GlobeProps) {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
     camera.position.copy(position(24, 60, 3.4));
+    if (propsRef.current.initialCamera) camera.position.fromArray(propsRef.current.initialCamera);
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enablePan = false;
+    controls.enabled = !propsRef.current.cinematic;
     controls.enableDamping = true;
     controls.dampingFactor = 0.07;
     controls.minDistance = 1.5;
@@ -107,11 +114,11 @@ export default function Globe(props: GlobeProps) {
     });
     const earth = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), material);
     scene.add(earth);
-    scene.add(new THREE.AmbientLight('#b7c7dc', 1.5));
+    scene.add(new THREE.AmbientLight('#b7c7dc', propsRef.current.cinematic ? 0.35 : 1.5));
     const sun = new THREE.DirectionalLight('#d9e3ee', 1.7);
     sun.position.set(-3, 5, 4);
     scene.add(sun);
-    const rim = new THREE.DirectionalLight('#49749d', 1.5);
+    const rim = new THREE.DirectionalLight('#49749d', propsRef.current.cinematic ? 0.6 : 1.5);
     rim.position.set(4, 1, -3);
     scene.add(rim);
     const atmosphere = new THREE.Mesh(
@@ -321,7 +328,12 @@ export default function Globe(props: GlobeProps) {
     let last = 0;
     const animate = (time: number) => {
       frame = requestAnimationFrame(animate);
-      if (document.hidden || time - last < (window.innerWidth < 768 ? 32 : 16)) return;
+      if (
+        document.hidden ||
+        propsRef.current.paused ||
+        time - last < (window.innerWidth < 768 ? 32 : 16)
+      )
+        return;
       const delta = Math.min(0.1, (time - last) / 1000);
       last = time;
       controls.autoRotate =
@@ -336,6 +348,7 @@ export default function Globe(props: GlobeProps) {
         (rt.rings.material as THREE.MeshBasicMaterial).opacity = 0.5 * (1 - ((time / 1800) % 1));
       }
       controls.update(delta);
+      propsRef.current.onCameraChange?.(camera.position.toArray() as CameraView);
       renderer.render(scene, camera);
     };
     frame = requestAnimationFrame(animate);
@@ -444,6 +457,13 @@ export default function Globe(props: GlobeProps) {
       }
     }
   }, [props.events, props.selected, ready]);
+  useEffect(() => {
+    if (runtime.current && props.initialCamera) {
+      runtime.current.camera.position.fromArray(props.initialCamera);
+      runtime.current.target = null;
+      runtime.current.controls.update();
+    }
+  }, [props.initialCamera, ready]);
   useEffect(() => {
     const rt = runtime.current;
     if (!rt) return;

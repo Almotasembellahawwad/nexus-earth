@@ -55,9 +55,48 @@ function fixture(): FeedResponse {
 }
 async function load(page: Page, feed = fixture()) {
   await page.route('**/api/events', (route) => route.fulfill({ json: feed }));
-  await page.goto('/');
+  await page.goto('/live');
   await expect(page.locator('.connection')).not.toContainText('CONNECTING');
 }
+test('landing page opens a real catalog observation in the workspace', async ({ page }) => {
+  await page.route('**/api/events', (route) => route.fulfill({ json: fixture() }));
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'One planet. Always in motion.' })).toBeVisible();
+  await expect(page.locator('.landing-event')).toHaveCount(2);
+  await page.locator('.landing-event').filter({ hasText: 'TEST: Japan earthquake' }).click();
+  await expect(page).toHaveURL(/\/live\?event=/);
+  await expect(page.locator('.detail-title')).toContainText('Japan');
+});
+test('shared filters and camera survive opening the view link', async ({ page }) => {
+  await load(page);
+  await page.getByRole('button', { name: /Wildfires.*1/ }).click();
+  await page.getByRole('button', { name: 'Share current view', exact: true }).click();
+  const url = await page.getByLabel('View link', { exact: true }).inputValue();
+  const state = JSON.parse(new URL(url).searchParams.get('view')!);
+  expect(state.camera).toHaveLength(3);
+  await page.goto(url);
+  await expect(page.locator('.event-card')).toHaveCount(1);
+  await expect(page.locator('.event-card')).toContainText('Japan');
+  await page.getByRole('button', { name: 'Share current view', exact: true }).click();
+  const restored = JSON.parse(
+    new URL(await page.getByLabel('View link', { exact: true }).inputValue()).searchParams.get(
+      'view',
+    )!,
+  );
+  expect(restored.filters).toEqual(state.filters);
+  for (let i = 0; i < 3; i++) expect(restored.camera[i]).toBeCloseTo(state.camera[i], 2);
+});
+test('landing handles unavailable feeds and mobile layout without blocking entry', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('**/api/events', (route) => route.fulfill({ status: 503, body: 'Unavailable' }));
+  await page.goto('/');
+  await expect(page.getByRole('status')).toContainText('Feeds unavailable');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.getByRole('link', { name: 'Open observatory' }).click();
+  await expect(page).toHaveURL(/\/live$/);
+});
 test('globe, layer filters and reset agree with the event stream', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));

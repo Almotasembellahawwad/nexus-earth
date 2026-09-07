@@ -37,6 +37,7 @@ import {
   X,
 } from 'lucide-react';
 import { COUNTRIES } from '@/lib/countries';
+import { decodeView, encodeView, type CameraView } from '@/lib/shared-view';
 import { DEFAULT_FILTERS, filterEvents, parseCommand, type Filters } from '@/lib/filters';
 import {
   EVENT_TYPES,
@@ -85,6 +86,26 @@ export default function Workspace() {
   const [expanded, setExpanded] = useState(false);
   const refreshRef = useRef<() => void>(() => {});
   const commandInput = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<CameraView | undefined>(undefined);
+  const [initialCamera, setInitialCamera] = useState<CameraView>();
+  const [sharedAnchor, setSharedAnchor] = useState<number>();
+  const [shareUrl, setShareUrl] = useState('');
+  const [copyStatus, setCopyStatus] = useState('');
+  const pendingEvent = useRef<string | null>(null);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    pendingEvent.current = params.get('event');
+    const view = decodeView(params.get('view'));
+    if (view) {
+      setFilters(view.filters);
+      setCursor(view.cursor);
+      setSharedAnchor(view.cursor < 100 ? view.anchor : undefined);
+      setInitialCamera(view.camera);
+      setGrid(view.grid);
+      setRotating(false);
+      if (view.country) setCountry(COUNTRIES.find((c) => c.code === view.country) ?? null);
+    }
+  }, []);
 
   useEffect(() => {
     let stopped = false,
@@ -202,7 +223,7 @@ export default function Workspace() {
     };
   }, [country]);
 
-  const anchor = data?.fetchedAt ?? now ?? 0;
+  const anchor = sharedAnchor ?? data?.fetchedAt ?? now ?? 0;
   const asOf = anchor - filters.hours * 3_600_000 * (1 - cursor / 100);
   const events = useMemo(
     () =>
@@ -264,6 +285,7 @@ export default function Workspace() {
     [events],
   );
   const selectCountry = useCallback((c: Country) => {
+    setInitialCamera(undefined);
     setCountry(c);
     setSelected(null);
     setRotating(false);
@@ -271,6 +293,7 @@ export default function Workspace() {
     setCommandOpen(false);
   }, []);
   const updateFilters = (patch: Partial<Filters>) => {
+    setSharedAnchor(undefined);
     setFilters((f) => ({ ...f, ...patch }));
     setCursor(100);
     setPlaying(false);
@@ -278,6 +301,7 @@ export default function Workspace() {
     setSelected(null);
   };
   const resetFilters = () => {
+    setSharedAnchor(undefined);
     setFilters({ ...DEFAULT_FILTERS, types: [...EVENT_TYPES] });
     setCursor(100);
     setPlaying(false);
@@ -331,6 +355,28 @@ export default function Workspace() {
   const chosenEvent = selected
     ? (data?.events.find((e) => e.id === selected.id) ?? selected)
     : null;
+  useEffect(() => {
+    if (!data || !pendingEvent.current) return;
+    const event = data.events.find((e) => e.id === pendingEvent.current);
+    pendingEvent.current = null;
+    if (event) selectEvent(event);
+  }, [data, selectEvent]);
+  const shareView = () => {
+    const url = new URL('/live', window.location.origin);
+    url.searchParams.set(
+      'view',
+      encodeView({
+        filters,
+        cursor,
+        anchor: cursor < 100 ? anchor : undefined,
+        camera: cameraRef.current,
+        country: country?.code,
+        grid,
+      }),
+    );
+    setShareUrl(url.toString());
+    setCopyStatus('');
+  };
 
   return (
     <div className={`workspace ${expanded ? 'expanded' : ''}`}>
@@ -364,6 +410,9 @@ export default function Workspace() {
           </button>
         </nav>
         <div className="topbar-end">
+          <button className="icon-button" onClick={shareView} aria-label="Share current view">
+            <Link2 size={17} />
+          </button>
           <button
             className="search-trigger"
             onClick={() => {
@@ -636,9 +685,13 @@ export default function Workspace() {
             <div className="globe-coordinate east">180° E</div>
             <div className="orbital-frame" />
             <Globe
+              initialCamera={initialCamera}
+              onCameraChange={(camera) => {
+                cameraRef.current = camera;
+              }}
               events={events}
               selected={chosenEvent}
-              focus={country}
+              focus={initialCamera ? null : country}
               onSelect={selectEvent}
               onCountry={selectCountry}
               rotating={rotating}
@@ -667,6 +720,7 @@ export default function Workspace() {
               <span />
               <button
                 onClick={() => {
+                  setInitialCamera(undefined);
                   setSelected(null);
                   setCountry(null);
                   setGlobeCommand({ action: 'reset', nonce: Date.now() });
@@ -778,6 +832,7 @@ export default function Workspace() {
               <button
                 className={`live-return ${cursor === 100 ? 'active' : ''}`}
                 onClick={() => {
+                  setSharedAnchor(undefined);
                   setCursor(100);
                   setPlaying(false);
                 }}
@@ -1083,6 +1138,41 @@ export default function Workspace() {
         </div>
       </Modal>
 
+      <Modal
+        open={!!shareUrl}
+        close={() => setShareUrl('')}
+        title="Share current view"
+        className="share-modal"
+      >
+        <div className="share-content">
+          <p>
+            Share your filters, globe position and time selection. Live views refresh with the
+            feeds; replay links use the saved time against the currently available catalog, not an
+            archived snapshot.
+          </p>
+          <label htmlFor="shared-view-url">View link</label>
+          <input
+            id="shared-view-url"
+            readOnly
+            value={shareUrl}
+            onFocus={(e) => e.currentTarget.select()}
+          />
+          <button
+            className="share-copy"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(shareUrl);
+                setCopyStatus('Link copied');
+              } catch {
+                setCopyStatus('Select the link above and copy it manually.');
+              }
+            }}
+          >
+            Copy link
+          </button>
+          <p role="status">{copyStatus}</p>
+        </div>
+      </Modal>
       <InfoModal info={info} data={data} onClose={() => setInfo(null)} />
     </div>
   );

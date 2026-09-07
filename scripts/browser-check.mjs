@@ -15,7 +15,7 @@ page.on('pageerror', (error) => errors.push(error.message));
 page.on('console', (message) => {
   if (message.type() === 'error') errors.push(message.text());
 });
-await page.goto(process.env.NEXUS_TEST_URL || 'http://localhost:3000', {
+await page.goto(new URL('/live', process.env.NEXUS_TEST_URL || 'http://localhost:3000').href, {
   waitUntil: 'networkidle',
 });
 await page.waitForFunction(() => document.querySelectorAll('.event-card').length > 0, {

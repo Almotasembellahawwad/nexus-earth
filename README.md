@@ -19,6 +19,10 @@ npm run dev
 
 Open [localhost:3000](http://localhost:3000). On Windows PowerShell with script execution disabled, use `npm.cmd` instead of `npm`. The server needs outbound HTTPS access to the public data sources; no environment variables or credentials are required.
 
+The home page introduces the observatory with a cinematic Earth and a timestamped public-feed snapshot. Open `/live` to go straight to the existing workspace. Event links from the home page open the corresponding observation when it is still in the source catalog.
+
+Use **Share current view** in the workspace header to copy a link containing filters, globe position, country context and time selection. Live links refresh normally. Replay links retain the saved time but query the current source catalog; they are not immutable historical archives. Links require no account or server storage.
+
 For a production build:
 
 ```bash

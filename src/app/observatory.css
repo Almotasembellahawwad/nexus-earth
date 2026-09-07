@@ -918,3 +918,26 @@ button {
     font-size: 28px;
   }
 }
+.share-content {
+  padding: 24px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.share-content label {
+  display: block;
+  margin: 20px 0 8px;
+  color: var(--text);
+}
+.share-content input {
+  width: 100%;
+  padding: 12px;
+  background: #080e17;
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+.share-copy {
+  margin-top: 16px;
+  padding: 12px 20px;
+  background: var(--accent);
+  color: #172014;
+}
