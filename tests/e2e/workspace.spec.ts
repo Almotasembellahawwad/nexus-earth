@@ -118,6 +118,33 @@ test('landing handles unavailable feeds and mobile layout without blocking entry
   await page.getByRole('link', { name: 'Open observatory' }).click();
   await expect(page).toHaveURL(/\/live$/);
 });
+test('hero Earth stays inside its section and clear of the copy at responsive sizes', async ({
+  page,
+}) => {
+  await page.route('**/api/events', (route) => route.fulfill({ json: fixture() }));
+  await page.goto('/');
+  for (const width of [390, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const bounds = await page.evaluate(() => {
+      const hero = document.querySelector('.landing-hero')!.getBoundingClientRect();
+      const earth = document.querySelector('.landing-earth')!.getBoundingClientRect();
+      const copy = document.querySelector('.landing-hero-copy')!.getBoundingClientRect();
+      return {
+        contained:
+          earth.left >= hero.left &&
+          earth.right <= hero.right &&
+          earth.top >= hero.top &&
+          earth.bottom <= hero.bottom,
+        overlaps:
+          earth.left < copy.right &&
+          earth.right > copy.left &&
+          earth.top < copy.bottom &&
+          earth.bottom > copy.top,
+      };
+    });
+    expect(bounds, `Hero bounds at ${width}px`).toEqual({ contained: true, overlaps: false });
+  }
+});
 test('globe, layer filters and reset agree with the event stream', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));

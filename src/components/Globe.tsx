@@ -114,7 +114,7 @@ export default function Globe(props: GlobeProps) {
     });
     const earth = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), material);
     scene.add(earth);
-    scene.add(new THREE.AmbientLight('#b7c7dc', propsRef.current.cinematic ? 0.35 : 1.5));
+    scene.add(new THREE.AmbientLight('#b7c7dc', propsRef.current.cinematic ? 1.1 : 1.5));
     const sun = new THREE.DirectionalLight('#d9e3ee', 1.7);
     sun.position.set(-3, 5, 4);
     scene.add(sun);
@@ -219,7 +219,7 @@ export default function Globe(props: GlobeProps) {
         material.color.set('#dce9ff');
         material.emissive.set('#7b8ba3');
         material.emissiveMap = texture;
-        material.emissiveIntensity = 0.32;
+      material.emissiveIntensity = propsRef.current.cinematic ? 0.5 : 0.32;
         material.needsUpdate = true;
         satelliteReady = true;
       },

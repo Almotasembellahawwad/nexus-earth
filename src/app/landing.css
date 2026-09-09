@@ -391,21 +391,40 @@
   line-height: 1;
 }
 .landing .landing-hero {
-  min-height: 790px;
-  height: calc(100svh - 88px);
-  padding-top: 60px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 40px;
+  min-height: 720px;
+  height: auto;
+  padding: 70px 6% 120px;
+  overflow: clip;
+}
+.landing .landing-hero-copy {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
 }
 .landing .landing-hero h1 {
-  font-size: clamp(56px, 5.8vw, 94px);
+  font-size: clamp(48px, 4.4vw, 76px);
   max-width: 850px;
   line-height: 1.07;
 }
 .landing .landing-earth {
-  width: 86%;
-  height: 132%;
-  right: -29%;
-  top: 0;
-  mask-image: linear-gradient(90deg, transparent, black 22%, black 88%, transparent);
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  max-width: 680px;
+  justify-self: center;
+  inset: auto;
+  z-index: 0;
+  opacity: 1;
+  mask-image: none;
+}
+.landing .landing-earth .globe-canvas {
+  inset: 0;
 }
 .hero-motion {
   position: absolute;
@@ -730,26 +749,30 @@
     gap: 15px;
   }
   .landing .landing-earth {
-    width: 150%;
-    height: 650px;
-    right: -40%;
-    top: auto;
-    bottom: -130px;
-    mask-image: linear-gradient(180deg, transparent, black 20%, black 85%, transparent);
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    height: auto;
+    max-width: 520px;
+    inset: auto;
+    mask-image: none;
   }
   .landing .landing-hero {
-    min-height: 950px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    min-height: 0;
     height: auto;
-    padding: 45px 7% 430px;
+    max-height: none;
+    padding: 42px 7% 110px;
   }
   .landing .landing-hero h1 {
-    font-size: 53px;
+    font-size: clamp(42px, 7.5vw, 60px);
   }
   .hero-wordmark {
     margin: 25px 0;
   }
   .hero-motion {
-    bottom: 70px;
+    bottom: 60px;
     right: 7%;
   }
   .landing .landing-sources a {
@@ -767,5 +790,23 @@
   }
   .landing-credits {
     padding: 0 7% 25px;
+  }
+}
+@media (min-width: 701px) and (max-width: 1000px) {
+  .landing .landing-hero {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 50px 8% 120px;
+    max-height: none;
+  }
+  .landing .landing-earth {
+    grid-column: 1;
+    grid-row: 2;
+    max-width: 520px;
+  }
+  .landing .landing-hero-copy {
+    max-width: 640px;
+  }
+  .landing .landing-hero h1 {
+    font-size: 64px;
   }
 }
