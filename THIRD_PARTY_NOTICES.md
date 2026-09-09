@@ -1,5 +1,12 @@
 # Third-party notices
 
+## Earth imagery
+
+- `public/imagery/earth-night-2016.jpg`: NASA Earth Observatory, Black Marble 2016 color composite, 3600×1800. Source: https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/ — original: https://assets.science.nasa.gov/content/dam/science/esd/eo/images/imagerecords/144000/144898/BlackMarble_2016_01deg.jpg
+- `public/imagery/orbital-sunrise.jpg`: NASA / Matthew Dominick, August 15, 2024, ISS photograph iss071e487194. Source: https://www.nasa.gov/image-article/sunrise-begins/ — NASA-provided 2000px image rendition.
+
+These are historical illustrative assets, not current satellite observations. Night lights are separate from NEXUS event markers. Imagery is used with attribution under NASA's media guidelines: https://www.nasa.gov/nasa-brand-center/images-and-media/ . No NASA insignia is used and no endorsement is implied. The original images are bundled without generative modifications; globe projection, lighting and CSS framing are presentation treatments.
+
 NEXUS includes data derived from the following projects. Their original licenses continue to apply to that material.
 
 ## Country boundaries

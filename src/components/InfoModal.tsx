@@ -56,6 +56,11 @@ export default function InfoModal({
               </p>
             </div>
             <p className="info-note">
+              Basemap imagery: NASA Earth Observatory Black Marble, 2016 composite. City lights are
+              historical imagery, not live event markers. Colored observation markers come from the
+              current source catalog.
+            </p>
+            <p className="info-note">
               USGS is limited to M2.5+ events. NASA polygon-only events are excluded. GDACS history
               is limited to its current feed. Country attribution is incomplete. Cached observations
               are marked stale if a refresh fails.

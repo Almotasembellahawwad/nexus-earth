@@ -9,9 +9,20 @@ try {
   await page.goto(process.env.NEXUS_TEST_URL || 'http://localhost:3000', {
     waitUntil: 'networkidle',
   });
-  await page.locator('canvas').waitFor();
+  await page.locator('.landing-earth canvas').waitFor();
+  await page.locator('.observatory-preview').scrollIntoViewIfNeeded();
+  await page.locator('.preview-earth canvas').waitFor();
+  await page.waitForFunction(() => !document.querySelector('.preview-earth .globe-loading'));
+  await page.locator('.landing-closing').scrollIntoViewIfNeeded();
+  await page.locator('.closing-horizon').evaluate((image) => image.decode());
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: 'artifacts/landing-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('.observatory-preview').scrollIntoViewIfNeeded();
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+  );
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: 'artifacts/landing-mobile.png', fullPage: true });
   const audit = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])

@@ -1,5 +1,7 @@
 import Link from 'next/link';
-import { ArrowDown, ArrowUpRight } from 'lucide-react';
+import { Activity, ArrowDown, ArrowUpRight, Earth, Orbit, Mountain, Check } from 'lucide-react';
+import Image from 'next/image';
+import LandingObservatory from '@/components/LandingObservatory';
 import LandingEarth from '@/components/LandingEarth';
 import LandingSnapshot from '@/components/LandingSnapshot';
 import './landing.css';
@@ -27,18 +29,19 @@ export default function Home() {
         <section className="landing-hero" aria-labelledby="landing-title">
           <LandingEarth />
           <div className="landing-hero-copy">
-            <p className="landing-label">EARTH INTELLIGENCE / NEXUS</p>
+            <p className="landing-label">01 / A MORE INFORMED TOMORROW</p>
+            <div className="hero-wordmark" aria-hidden="true">
+              <span>N</span> NEXUS.
+            </div>
             <h1 id="landing-title">
-              One planet.
+              What if Earth had
               <br />
-              <span>Always in motion.</span>
+              <span>an interface?</span>
             </h1>
             <p className="landing-deck">
-              A living perspective on our changing Earth.
+              Live data. Real context. A clearer view.
               <br />
-              Observe natural events. Explore their context.
-              <br />
-              Follow the evidence.
+              An independent digital observatory for a world in motion.
             </p>
             <Link href="/live" className="landing-cta">
               Enter the observatory <ArrowUpRight size={18} />
@@ -51,9 +54,33 @@ export default function Home() {
             <span className="landing-label">A WORLD IN CONTINUOUS CHANGE</span>
           </div>
         </section>
+        <section
+          className="landing-section landing-experience"
+          id="observatory"
+          aria-labelledby="experience-title"
+        >
+          <div className="experience-heading">
+            <div>
+              <p className="landing-label">02 / A LIVING PERSPECTIVE</p>
+              <h2 id="experience-title">
+                One planet.
+                <br />
+                <span>Always in motion.</span>
+              </h2>
+            </div>
+            <p>
+              Move beyond the headlines.
+              <br />
+              Explore the signals, the places,
+              <br />
+              and the context that connects them.
+            </p>
+          </div>
+          <LandingObservatory />
+        </section>
         <section className="landing-section landing-now" id="earth-now" aria-labelledby="now-title">
           <div className="landing-section-head">
-            <p className="landing-label">01 / OBSERVATION</p>
+            <p className="landing-label">03 / OBSERVATION</p>
             <h2 id="now-title">
               The Earth, <span>right now.</span>
             </h2>
@@ -73,7 +100,7 @@ export default function Home() {
           aria-labelledby="method-title"
         >
           <div className="landing-section-head">
-            <p className="landing-label">02 / PERSPECTIVE</p>
+            <p className="landing-label">04 / PERSPECTIVE</p>
             <h2 id="method-title">
               A clearer view.
               <br />
@@ -119,16 +146,32 @@ export default function Home() {
             <p className="landing-label">PUBLIC DATA / INDEPENDENT PRESENTATION</p>
             <div>
               <a href="https://earthquake.usgs.gov/">
-                USGS <ArrowUpRight size={12} />
+                <Activity size={30} />
+                <span>
+                  USGS<small>Earthquake observations</small>
+                </span>
+                <ArrowUpRight size={12} />
               </a>
               <a href="https://eonet.gsfc.nasa.gov/">
-                NASA EONET <ArrowUpRight size={12} />
+                <Orbit size={30} />
+                <span>
+                  NASA EONET<small>Natural events</small>
+                </span>
+                <ArrowUpRight size={12} />
               </a>
               <a href="https://www.gdacs.org/">
-                GDACS <ArrowUpRight size={12} />
+                <Mountain size={30} />
+                <span>
+                  GDACS<small>Disaster alerts</small>
+                </span>
+                <ArrowUpRight size={12} />
               </a>
               <a href="https://data.worldbank.org/">
-                World Bank <ArrowUpRight size={12} />
+                <Earth size={30} />
+                <span>
+                  World Bank<small>Country indicators</small>
+                </span>
+                <ArrowUpRight size={12} />
               </a>
             </div>
             <p>
@@ -136,8 +179,51 @@ export default function Home() {
             </p>
           </div>
         </section>
+        <section className="landing-section landing-independence">
+          <div>
+            <p className="landing-label">05 / BUILT WITH INTENTION</p>
+            <h2>
+              Open by design.
+              <br />
+              <span>Independent by choice.</span>
+            </h2>
+          </div>
+          <div>
+            <p>
+              Public observations, visible sources and methods you can inspect. A considered view of
+              the planet, with room to form your own perspective.
+            </p>
+            <ul>
+              <li>
+                <Check size={19} /> Source records behind every observation
+              </li>
+              <li>
+                <Check size={19} /> Transparent calculations and coverage
+              </li>
+              <li>
+                <Check size={19} /> Open-source code, available to explore
+              </li>
+            </ul>
+            <a
+              className="landing-text-link"
+              href="https://github.com/Almotasembellahawwad/nexus-earth"
+            >
+              Explore the project <ArrowUpRight size={15} />
+            </a>
+          </div>
+        </section>
         <section className="landing-closing">
-          <p className="landing-label">YOUR NEXT PERSPECTIVE</p>
+          <Image
+            className="closing-horizon"
+            src="/imagery/orbital-sunrise.jpg"
+            alt=""
+            fill
+            sizes="100vw"
+          />
+          <p className="landing-label">06 / SAME PLANET. INFINITE STORIES.</p>
+          <div className="closing-wordmark">
+            NEXUS<span>.</span>
+          </div>
           <h2>
             The world doesn’t stand still.
             <br />
@@ -151,10 +237,21 @@ export default function Home() {
       <footer className="landing-footer">
         <span>NEXUS / EARTH INTELLIGENCE</span>
         <span>Public observations. Open perspective.</span>
-        <Link href="/live">
-          Live workspace <ArrowUpRight size={12} />
-        </Link>
+        <a href="https://github.com/Almotasembellahawwad">
+          Built by Almotasembellah Awwad <ArrowUpRight size={12} />
+        </a>
       </footer>
+      <div className="landing-credits">
+        Earth imagery:{' '}
+        <a href="https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/">
+          NASA Earth Observatory / Black Marble (2016)
+        </a>{' '}
+        ·{' '}
+        <a href="https://www.nasa.gov/image-article/sunrise-begins/">
+          Orbital sunrise: NASA / Matthew Dominick (2024)
+        </a>
+        . Historical imagery, not a live satellite view.
+      </div>
     </div>
   );
 }

@@ -127,7 +127,7 @@ export default function Globe(props: GlobeProps) {
         vertexShader:
           'varying vec3 vNormal; varying vec3 vPosition; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vNormal = normalize(normalMatrix * normal); vPosition = mv.xyz; gl_Position = projectionMatrix * mv; }',
         fragmentShader:
-          'varying vec3 vNormal; varying vec3 vPosition; void main(){ float rim = pow(1.0-abs(dot(normalize(vNormal),normalize(-vPosition))),3.5); gl_FragColor=vec4(0.28,0.46,0.70,rim*0.18); }',
+          'varying vec3 vNormal; varying vec3 vPosition; void main(){ float rim = pow(1.0-abs(dot(normalize(vNormal),normalize(-vPosition))),4.5); gl_FragColor=vec4(0.20,0.48,0.82,rim*0.32); }',
         transparent: true,
         side: THREE.BackSide,
         depthWrite: false,
@@ -204,6 +204,30 @@ export default function Globe(props: GlobeProps) {
       reduced: motion.matches,
     };
     runtime.current = rt;
+    let satelliteReady = false;
+    new THREE.TextureLoader().load(
+      '/imagery/earth-night-2016.jpg',
+      (texture) => {
+        if (destroyed) {
+          texture.dispose();
+          return;
+        }
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+        material.map?.dispose();
+        material.map = texture;
+        material.color.set('#dce9ff');
+        material.emissive.set('#7b8ba3');
+        material.emissiveMap = texture;
+        material.emissiveIntensity = 0.32;
+        material.needsUpdate = true;
+        satelliteReady = true;
+      },
+      undefined,
+      () => {
+        /* The bundled cartographic texture remains available. */
+      },
+    );
     const motionChange = () => {
       rt.reduced = motion.matches;
     };
@@ -217,6 +241,10 @@ export default function Globe(props: GlobeProps) {
       .then((data: FeatureCollection<Geometry>) => {
         if (destroyed) return;
         geography = data;
+        if (satelliteReady) {
+          setReady(true);
+          return;
+        }
         const textureCanvas = document.createElement('canvas');
         textureCanvas.width = 2048;
         textureCanvas.height = 1024;
@@ -257,6 +285,8 @@ export default function Globe(props: GlobeProps) {
       camera.aspect = width / Math.max(1, height);
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      // Preserve a still frame when an offscreen preview is resized while paused.
+      renderer.render(scene, camera);
     };
     const observer = new ResizeObserver(resize);
     observer.observe(host);

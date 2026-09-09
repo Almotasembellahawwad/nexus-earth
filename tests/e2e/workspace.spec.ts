@@ -61,7 +61,9 @@ async function load(page: Page, feed = fixture()) {
 test('landing page opens a real catalog observation in the workspace', async ({ page }) => {
   await page.route('**/api/events', (route) => route.fulfill({ json: fixture() }));
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'One planet. Always in motion.' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'What if Earth had an interface?' }),
+  ).toBeVisible();
   await expect(page.locator('.landing-event')).toHaveCount(2);
   await page.locator('.landing-event').filter({ hasText: 'TEST: Japan earthquake' }).click();
   await expect(page).toHaveURL(/\/live\?event=/);
@@ -85,6 +87,25 @@ test('shared filters and camera survive opening the view link', async ({ page })
   );
   expect(restored.filters).toEqual(state.filters);
   for (let i = 0; i < 3; i++) expect(restored.camera[i]).toBeCloseTo(state.camera[i], 2);
+});
+test('interactive landing preview filters actual observations and pauses rotation', async ({
+  page,
+}) => {
+  await page.route('**/api/events', (route) => route.fulfill({ json: fixture() }));
+  await page.goto('/');
+  const preview = page.locator('.observatory-preview');
+  await preview.scrollIntoViewIfNeeded();
+  await expect(preview.locator('.preview-reading strong')).toHaveText('2');
+  await preview.getByRole('button', { name: 'Wildfires', exact: true }).click();
+  await expect(preview.locator('.preview-reading strong')).toHaveText('1');
+  await expect(preview.getByRole('button', { name: 'Wildfires', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await preview.getByRole('button', { name: 'Pause preview rotation' }).click();
+  await expect(preview.getByRole('button', { name: 'Resume preview rotation' })).toBeVisible();
+  await preview.getByRole('link', { name: 'Open the full workspace' }).click();
+  await expect(page).toHaveURL(/\/live$/);
 });
 test('landing handles unavailable feeds and mobile layout without blocking entry', async ({
   page,
